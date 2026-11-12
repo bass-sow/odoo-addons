@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="mail_template_expiry_digest" model="mail.template">
+        <field name="name">Inventory: Expiring Lots Digest</field>
+        <field name="model_id" ref="base.model_res_company"/>
+        <field name="subject">{{ object.name }}: lots expiring in the next {{ object.expiry_warning_days }} days</field>
+        <field name="email_from">{{ object.email_formatted or user.email_formatted }}</field>
+        <field name="partner_to">{{ object.expiry_responsible_id.partner_id.id }}</field>
+        <field name="auto_delete" eval="True"/>
+        <field name="body_html" type="html">
+<div style="font-family: Arial, sans-serif; font-size: 13px;">
+    <p>Hello <t t-out="object.expiry_responsible_id.name or ''"/>,</p>
+    <p>These lots are in stock and are expired or expire within <t t-out="object.expiry_warning_days"/> days:</p>
+    <table style="border-collapse: collapse; width: 100%;">
+        <thead>
+            <tr style="background-color: #f2f2f2;">
+                <th style="text-align: left; padding: 6px; border: 1px solid #ddd;">Lot</th>
+                <th style="text-align: left; padding: 6px; border: 1px solid #ddd;">Product</th>
+                <th style="text-align: right; padding: 6px; border: 1px solid #ddd;">On Hand</th>
+                <th style="text-align: left; padding: 6px; border: 1px solid #ddd;">Expiration</th>
+                <th style="text-align: right; padding: 6px; border: 1px solid #ddd;">Value</th>
+            </tr>
+        </thead>
+        <tbody>
+            <t t-foreach="object.env['stock.lot'].browse(ctx.get('expiry_lot_ids', []))" t-as="lot">
+                <tr t-attf-style="color: {{ 'red' if lot.expiry_state == 'expired' else 'inherit' }};">
+                    <td style="padding: 6px; border: 1px solid #ddd;" t-out="lot.name"/>
+                    <td style="padding: 6px; border: 1px solid #ddd;" t-out="lot.product_id.display_name"/>
+                    <td style="text-align: right; padding: 6px; border: 1px solid #ddd;">
+                        <t t-out="lot.product_qty"/> <t t-out="lot.product_uom_id.name"/>
+                    </td>
+                    <td style="padding: 6px; border: 1px solid #ddd;" t-out="format_date(lot.expiration_date)"/>
+                    <td style="text-align: right; padding: 6px; border: 1px solid #ddd;" t-out="format_amount(lot.expiry_value, lot.currency_id)"/>
+                </tr>
+            </t>
+        </tbody>
+    </table>
+    <p style="color: #888;">You can change the warning window in Inventory &gt; Configuration &gt; Settings.</p>
+</div>
+        </field>
+    </record>
+</odoo>
