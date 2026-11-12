@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_production_lot_tree" model="ir.ui.view">
+        <field name="name">stock.lot.tree.inherit.expiry.alert</field>
+        <field name="model">stock.lot</field>
+        <field name="inherit_id" ref="stock.view_production_lot_tree"/>
+        <field name="arch" type="xml">
+            <field name="product_qty" position="after">
+                <field name="expiry_state" optional="show" widget="badge"
+                       decoration-success="expiry_state == 'ok'"
+                       decoration-warning="expiry_state == 'soon'"
+                       decoration-danger="expiry_state == 'expired'"/>
+                <field name="days_to_expiry" optional="hide"/>
+            </field>
+        </field>
+    </record>
+
+    <record id="view_production_lot_form" model="ir.ui.view">
+        <field name="name">stock.lot.form.inherit.expiry.alert</field>
+        <field name="model">stock.lot</field>
+        <field name="inherit_id" ref="stock.view_production_lot_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//div[hasclass('oe_title')]" position="before">
+                <widget name="web_ribbon" title="Expired" bg_color="text-bg-danger"
+                        invisible="expiry_state != 'expired'"/>
+                <widget name="web_ribbon" title="Expiring Soon" bg_color="text-bg-warning"
+                        invisible="expiry_state != 'soon'"/>
+                <field name="expiry_state" invisible="1"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="search_product_lot_filter" model="ir.ui.view">
+        <field name="name">stock.lot.search.inherit.expiry.alert</field>
+        <field name="model">stock.lot</field>
+        <field name="inherit_id" ref="stock.search_product_lot_filter"/>
+        <field name="arch" type="xml">
+            <filter name="on_hand" position="after">
+                <separator/>
+                <filter string="Expiring Soon" name="expiring_soon"
+                        domain="[('expiry_state', '=', 'soon')]"/>
+                <filter string="Expired" name="expired"
+                        domain="[('expiry_state', '=', 'expired')]"/>
+            </filter>
+        </field>
+    </record>
+
+    <record id="stock_lot_expiry_tree" model="ir.ui.view">
+        <field name="name">stock.lot.expiry.tree</field>
+        <field name="model">stock.lot</field>
+        <field name="priority">99</field>
+        <field name="arch" type="xml">
+            <tree string="Expiring Lots" create="false" default_order="expiration_date"
+                  decoration-danger="expiry_state == 'expired'"
+                  decoration-warning="expiry_state == 'soon'">
+                <field name="name"/>
+                <field name="product_id"/>
+                <field name="product_qty" string="On Hand" sum="Total"/>
+                <field name="product_uom_id" string="UoM" groups="uom.group_uom"/>
+                <field name="expiration_date"/>
+                <field name="days_to_expiry" string="Days Left"/>
+                <field name="currency_id" column_invisible="True"/>
+                <field name="expiry_value"/>
+                <field name="expiry_state" widget="badge"
+                       decoration-warning="expiry_state == 'soon'"
+                       decoration-danger="expiry_state == 'expired'"/>
+                <field name="company_id" groups="base.group_multi_company"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="action_stock_lot_expiring" model="ir.actions.act_window">
+        <field name="name">Expiring Lots</field>
+        <field name="res_model">stock.lot</field>
+        <field name="view_mode">tree,form</field>
+        <field name="view_id" ref="stock_lot_expiry_tree"/>
+        <field name="domain">[('expiry_state', 'in', ['soon', 'expired']), ('product_qty', '>', 0)]</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">No lots close to their expiration date</p>
+            <p>Lots in stock that expire within the warning window set in the Inventory settings show up here.</p>
+        </field>
+    </record>
+
+    <menuitem id="menu_stock_lot_expiring"
+              name="Expiring Lots"
+              parent="stock.menu_warehouse_report"
+              action="action_stock_lot_expiring"
+              sequence="40"/>
+</odoo>
