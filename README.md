@@ -46,15 +46,6 @@ Products need lot tracking and "Expiration Date" enabled (from `product_expiry`)
 - Multi-company: the threshold and recipient are company fields, and the cron sends
   one email per company.
 
-## Run it locally
-
-```bash
-docker compose up -d
-```
-
-Open http://localhost:8069, create a database, then install **Stock Lot Expiry Alert**
-from Apps (remove the "Apps" filter to see it).
-
 ## Tests
 
 ```bash
