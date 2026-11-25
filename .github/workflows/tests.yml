@@ -1,0 +1,26 @@
+name: Tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install ruff lxml
+      - run: ruff check .
+      - name: XML files are well formed
+        run: python -c "import glob, lxml.etree as e; [e.parse(f) for f in glob.glob('*/**/*.xml', recursive=True)]"
+
+  odoo:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install and test every module on Odoo 17
+        run: ./scripts/run_tests.sh

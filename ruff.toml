@@ -1,0 +1,13 @@
+line-length = 110
+target-version = "py310"
+
+[lint]
+select = ["E", "F", "I", "B", "UP"]
+
+[lint.isort]
+known-first-party = ["odoo"]
+section-order = ["future", "standard-library", "third-party", "first-party", "local-folder"]
+
+[lint.per-file-ignores]
+"__init__.py" = ["F401", "I001"]
+"__manifest__.py" = ["B018"]

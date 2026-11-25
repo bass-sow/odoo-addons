@@ -1,57 +1,54 @@
-# Stock Lot Expiry Alert (Odoo 17)
+# Odoo Addons
 
-Odoo 17 module for warehouses that handle perishable goods. It flags lots that are
-close to their expiration date and sends a daily email with the stock at risk, so
-the team can move or discount it before it has to be scrapped.
+[![Tests](https://github.com/bass-sow/odoo-addons/actions/workflows/tests.yml/badge.svg)](https://github.com/bass-sow/odoo-addons/actions/workflows/tests.yml)
 
-Odoo's `product_expiry` already stores expiration dates and can log an activity per
-lot when its alert date is reached. In practice, with a lot of references, that means
-dozens of separate activities. This module adds a single company-wide view and one
-daily summary instead.
+Odoo 17 Community modules for everyday needs in distribution companies: stock about to
+expire, quotations sold below margin and customers who pay late. Each module is small,
+does one thing, has tests and runs them in CI against a real Odoo 17.
 
-![Expiring lots](docs/expiring_lots.png)
+| Module | Area | What it does |
+|---|---|---|
+| [stock_lot_expiry_alert](stock_lot_expiry_alert) | Inventory | Expiry state on lots, "Expiring Lots" report and a daily email with the stock at risk |
+| [sale_margin_approval](sale_margin_approval) | Sales | Quotations below a minimum margin need a Sales Manager's approval before confirmation |
+| [account_payment_reminder](account_payment_reminder) | Accounting | Reminder emails for overdue customer invoices by levels (7/15/30 days), one email per customer |
 
-## Features
+![Expiring lots](stock_lot_expiry_alert/docs/expiring_lots.png)
 
-- **Expiry state on lots**: `OK`, `Expiring Soon` or `Expired`, based on a warning
-  window (in days) configured per company. Shown as a badge in the lot list and as a
-  ribbon on the lot form.
-- **Days left and stock value** for each lot (on hand quantity x product cost).
-- **Inventory > Reporting > Expiring Lots**: lots in stock that are expired or expire
-  within the window, sorted by date, with totals.
-- **Search filters** "Expiring Soon" and "Expired" on the standard lot search view.
-- **Daily digest email** (scheduled action) to a user chosen in the settings. Only
-  lots with quantity in internal locations are included.
+## Try them
 
-| Lot form | Digest email |
-|---|---|
-| ![Lot form](docs/lot_form.png) | ![Digest](docs/digest_email.png) |
+```bash
+docker compose up -d            # Odoo 17 + PostgreSQL, http://localhost:8069
+```
 
-## Configuration
-
-Inventory > Configuration > Settings > Traceability > **Expiry Alerts**
-
-- *Days before expiry*: warning window, 30 by default.
-- *Send to*: user who receives the digest. If empty, no email is sent for that company.
-
-Products need lot tracking and "Expiration Date" enabled (from `product_expiry`).
-
-## Technical notes
-
-- `expiry_state` is computed (not stored) because it depends on the current date. A
-  `search` method translates it into a domain on `expiration_date`, so it can be used
-  in filters and in the action domain.
-- The digest looks for lots through `stock.quant` (internal locations, quantity > 0)
-  to avoid computing `product_qty` lot by lot.
-- Multi-company: the threshold and recipient are company fields, and the cron sends
-  one email per company.
+Create a database, enable developer mode, *Apps > Update Apps List* and install the
+modules. The repository is mounted as an addons path, so code changes only need a
+restart (`docker compose restart odoo`) and a module upgrade.
 
 ## Tests
 
 ```bash
-odoo-bin -d test_db -i stock_lot_expiry_alert --test-enable --test-tags=/stock_lot_expiry_alert --stop-after-init
+./scripts/run_tests.sh                         # every module, in a throwaway database
+./scripts/run_tests.sh sale_margin_approval    # a single one
 ```
+
+The script installs the modules in a fresh database inside the `odoo:17.0` image, runs
+their tests and fails if any test or module load fails. GitHub Actions runs the same
+script on every push, plus `ruff` and an XML check.
+
+| Module | Tests |
+|---|---|
+| stock_lot_expiry_alert | 7 |
+| sale_margin_approval | 11 |
+| account_payment_reminder | 10 |
+
+## Conventions
+
+- One module per folder, `17.0.x.y.z` versions, LGPL-3.
+- Inherit standard views with xpath, no copies of core views.
+- Configuration lives on the company (multi-company safe) and is shown in the standard
+  settings screens.
+- Scheduled actions send one summary email instead of one per record.
 
 ## License
 
-LGPL-3
+LGPL-3. See [LICENSE](LICENSE).

@@ -4,7 +4,7 @@
     "version": "17.0.1.0.0",
     "category": "Inventory/Inventory",
     "author": "Bassirou Sow",
-    "website": "https://github.com/sowDragnir/odoo-stock-expiry-alert",
+    "website": "https://github.com/bass-sow/odoo-addons",
     "license": "LGPL-3",
     "depends": ["product_expiry", "mail"],
     "data": [
