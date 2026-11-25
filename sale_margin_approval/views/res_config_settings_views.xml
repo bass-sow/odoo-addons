@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="res_config_settings_view_form" model="ir.ui.view">
+        <field name="name">res.config.settings.view.form.inherit.sale.margin.approval</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="sale.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+            <setting id="show_margins" position="after">
+                <setting id="sale_margin_approval" company_dependent="1"
+                         string="Margin Approval"
+                         help="Quotations below this margin need a Sales Manager's approval">
+                    <div class="content-group">
+                        <div class="row mt8">
+                            <label for="sale_min_margin" string="Minimum margin (%)" class="col-lg-5 o_light_label"/>
+                            <field name="sale_min_margin" class="col-lg-2"/>
+                        </div>
+                        <div class="row">
+                            <label for="sale_margin_approver_id" string="Approver" class="col-lg-5 o_light_label"/>
+                            <field name="sale_margin_approver_id" class="col-lg-6"
+                                   options="{'no_create': True}"/>
+                        </div>
+                    </div>
+                </setting>
+            </setting>
+        </field>
+    </record>
+</odoo>

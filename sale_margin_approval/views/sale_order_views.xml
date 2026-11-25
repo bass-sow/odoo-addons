@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_order_form" model="ir.ui.view">
+        <field name="name">sale.order.form.inherit.margin.approval</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//header" position="inside">
+                <field name="margin_approval_state" invisible="1"/>
+                <field name="margin_approval_requested" invisible="1"/>
+                <button name="action_request_margin_approval" type="object"
+                        string="Request Margin Approval" class="btn-primary"
+                        invisible="margin_approval_state != 'to_approve' or margin_approval_requested"/>
+                <button name="action_approve_margin" type="object"
+                        string="Approve Margin" class="btn-primary"
+                        groups="sales_team.group_sale_manager"
+                        invisible="margin_approval_state != 'to_approve'"/>
+            </xpath>
+            <xpath expr="//sheet" position="before">
+                <field name="company_min_margin" invisible="1"/>
+                <div class="alert alert-warning mb-0" role="alert"
+                     invisible="margin_approval_state != 'to_approve'">
+                    The margin is below the company minimum of
+                    <field name="company_min_margin" class="oe_inline" readonly="1"/>%.
+                    A Sales Manager has to approve it before the quotation can be confirmed.
+                    <span invisible="not margin_approval_requested"> Approval requested.</span>
+                </div>
+                <div class="alert alert-success mb-0" role="status"
+                     invisible="margin_approval_state != 'approved'">
+                    Low margin approved by <field name="margin_approved_by_id" class="oe_inline" readonly="1"/>
+                    on <field name="margin_approved_date" class="oe_inline" readonly="1"/>.
+                </div>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_quotation_tree" model="ir.ui.view">
+        <field name="name">sale.order.quotation.tree.inherit.margin.approval</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_quotation_tree"/>
+        <field name="arch" type="xml">
+            <field name="state" position="before">
+                <field name="margin_approval_state" optional="show" widget="badge"
+                       invisible="margin_approval_state == 'not_needed'"
+                       decoration-warning="margin_approval_state == 'to_approve'"
+                       decoration-success="margin_approval_state == 'approved'"/>
+            </field>
+        </field>
+    </record>
+
+    <record id="view_sales_order_filter" model="ir.ui.view">
+        <field name="name">sale.order.search.inherit.margin.approval</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_sales_order_filter"/>
+        <field name="arch" type="xml">
+            <filter name="my_sale_orders_filter" position="after">
+                <filter string="Margin To Approve" name="margin_to_approve"
+                        domain="[('margin_approval_state', '=', 'to_approve')]"/>
+            </filter>
+        </field>
+    </record>
+
+    <record id="action_quotations_margin_to_approve" model="ir.actions.act_window">
+        <field name="name">Margins To Approve</field>
+        <field name="res_model">sale.order</field>
+        <field name="view_mode">tree,form</field>
+        <field name="view_id" ref="sale.view_quotation_tree"/>
+        <field name="domain">[('margin_approval_state', '=', 'to_approve')]</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">No quotations waiting for margin approval</p>
+            <p>Quotations below the minimum margin set in the Sales settings show up here.</p>
+        </field>
+    </record>
+
+    <menuitem id="menu_quotations_margin_to_approve"
+              name="Margins To Approve"
+              parent="sale.sale_order_menu"
+              action="action_quotations_margin_to_approve"
+              groups="sales_team.group_sale_manager"
+              sequence="15"/>
+</odoo>
