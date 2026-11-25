@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="mail_template_payment_reminder" model="mail.template">
+        <field name="name">Accounting: Payment Reminder</field>
+        <field name="model_id" ref="base.model_res_partner"/>
+        <field name="subject">{{ (object.company_id or user.company_id).name }}: overdue invoices</field>
+        <field name="email_from">{{ (object.company_id or user.company_id).email_formatted or user.email_formatted }}</field>
+        <field name="partner_to">{{ object.id }}</field>
+        <field name="auto_delete" eval="True"/>
+        <field name="lang">{{ object.lang }}</field>
+        <field name="body_html" type="html">
+<div style="font-family: Arial, sans-serif; font-size: 13px;">
+    <t t-set="invoices" t-value="object.env['account.move'].browse(ctx.get('reminder_invoice_ids', []))"/>
+    <t t-set="level" t-value="object.env['payment.reminder.level'].browse(ctx.get('reminder_level_id'))"/>
+    <p>Dear <t t-out="object.name or ''"/>,</p>
+    <p>According to our records, these invoices are past their due date:</p>
+    <table style="border-collapse: collapse; width: 100%;">
+        <thead>
+            <tr style="background-color: #f2f2f2;">
+                <th style="text-align: left; padding: 6px; border: 1px solid #ddd;">Invoice</th>
+                <th style="text-align: left; padding: 6px; border: 1px solid #ddd;">Date</th>
+                <th style="text-align: left; padding: 6px; border: 1px solid #ddd;">Due Date</th>
+                <th style="text-align: right; padding: 6px; border: 1px solid #ddd;">Days Overdue</th>
+                <th style="text-align: right; padding: 6px; border: 1px solid #ddd;">Amount Due</th>
+            </tr>
+        </thead>
+        <tbody>
+            <t t-foreach="invoices" t-as="inv">
+                <tr>
+                    <td style="padding: 6px; border: 1px solid #ddd;" t-out="inv.name"/>
+                    <td style="padding: 6px; border: 1px solid #ddd;" t-out="format_date(inv.invoice_date)"/>
+                    <td style="padding: 6px; border: 1px solid #ddd;" t-out="format_date(inv.invoice_date_due)"/>
+                    <td style="text-align: right; padding: 6px; border: 1px solid #ddd;" t-out="inv.days_overdue"/>
+                    <td style="text-align: right; padding: 6px; border: 1px solid #ddd;" t-out="format_amount(inv.amount_residual, inv.currency_id)"/>
+                </tr>
+            </t>
+        </tbody>
+    </table>
+    <p t-if="level.note" t-out="level.note"/>
+    <p>If you have any question about these invoices, just reply to this email.</p>
+    <p>Kind regards,<br/><t t-out="(object.company_id or user.company_id).name"/></p>
+</div>
+        </field>
+    </record>
+</odoo>

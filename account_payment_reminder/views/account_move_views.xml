@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_move_form" model="ir.ui.view">
+        <field name="name">account.move.form.inherit.payment.reminder</field>
+        <field name="model">account.move</field>
+        <field name="inherit_id" ref="account.view_move_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//page[@name='other_info']//group[@name='sale_info_group']" position="inside">
+                <field name="payment_reminder_level_id"
+                       invisible="move_type != 'out_invoice'"/>
+                <field name="payment_reminder_date"
+                       invisible="move_type != 'out_invoice' or not payment_reminder_date"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_out_invoice_tree" model="ir.ui.view">
+        <field name="name">account.out.invoice.tree.inherit.payment.reminder</field>
+        <field name="model">account.move</field>
+        <field name="inherit_id" ref="account.view_out_invoice_tree"/>
+        <field name="arch" type="xml">
+            <field name="invoice_date_due" position="after">
+                <field name="days_overdue" optional="hide" string="Days Overdue"/>
+                <field name="payment_reminder_level_id" optional="show"/>
+            </field>
+        </field>
+    </record>
+
+    <record id="action_reset_payment_reminder" model="ir.actions.server">
+        <field name="name">Reset Payment Reminders</field>
+        <field name="model_id" ref="account.model_account_move"/>
+        <field name="binding_model_id" ref="account.model_account_move"/>
+        <field name="binding_view_types">list,form</field>
+        <field name="groups_id" eval="[(4, ref('account.group_account_manager'))]"/>
+        <field name="state">code</field>
+        <field name="code">records.action_reset_payment_reminder()</field>
+    </record>
+</odoo>

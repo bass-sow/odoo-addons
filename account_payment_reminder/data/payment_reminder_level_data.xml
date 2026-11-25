@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="level_friendly" model="payment.reminder.level">
+        <field name="name">First reminder</field>
+        <field name="delay">7</field>
+        <field name="company_id" ref="base.main_company"/>
+        <field name="note">Maybe this slipped through. If you have already paid, please ignore this email.</field>
+    </record>
+    <record id="level_second" model="payment.reminder.level">
+        <field name="name">Second reminder</field>
+        <field name="delay">15</field>
+        <field name="company_id" ref="base.main_company"/>
+        <field name="note">We have not received the payment yet. Please let us know when it will be made.</field>
+    </record>
+    <record id="level_final" model="payment.reminder.level">
+        <field name="name">Final notice</field>
+        <field name="delay">30</field>
+        <field name="company_id" ref="base.main_company"/>
+        <field name="note">Without payment in the next 7 days, new orders will be put on hold.</field>
+    </record>
+</odoo>

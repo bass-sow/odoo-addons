@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="payment_reminder_level_view_tree" model="ir.ui.view">
+        <field name="name">payment.reminder.level.tree</field>
+        <field name="model">payment.reminder.level</field>
+        <field name="arch" type="xml">
+            <tree string="Payment Reminder Levels" editable="bottom">
+                <field name="delay"/>
+                <field name="name"/>
+                <field name="note"/>
+                <field name="mail_template_id" optional="hide"/>
+                <field name="company_id" groups="base.group_multi_company"/>
+                <field name="active" column_invisible="True"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="action_payment_reminder_level" model="ir.actions.act_window">
+        <field name="name">Payment Reminder Levels</field>
+        <field name="res_model">payment.reminder.level</field>
+        <field name="view_mode">tree</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Add a reminder level</p>
+            <p>Each level sends an email when a customer invoice is that many days overdue.</p>
+        </field>
+    </record>
+
+    <menuitem id="menu_payment_reminder_level"
+              name="Payment Reminders"
+              parent="account.account_invoicing_menu"
+              action="action_payment_reminder_level"
+              groups="account.group_account_manager"
+              sequence="50"/>
+</odoo>

@@ -1,0 +1,21 @@
+{
+    "name": "Account Payment Reminder",
+    "summary": "Automatic reminder emails for overdue customer invoices, by levels",
+    "version": "17.0.1.0.0",
+    "category": "Accounting/Accounting",
+    "author": "Bassirou Sow",
+    "website": "https://github.com/bass-sow/odoo-addons",
+    "license": "LGPL-3",
+    "depends": ["account", "mail"],
+    "data": [
+        "security/ir.model.access.csv",
+        "data/mail_template_data.xml",
+        "data/payment_reminder_level_data.xml",
+        "data/ir_cron_data.xml",
+        "views/payment_reminder_level_views.xml",
+        "views/account_move_views.xml",
+        "views/res_partner_views.xml",
+    ],
+    "installable": True,
+    "application": False,
+}
